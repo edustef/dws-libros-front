@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
 
-import Query from '../components/Query';
-import Table from '../components/Table';
+import Table from '../components/Table/Table';
 import Modal from '../components/Modal';
 import CustomTextInput from '../components/Form/CustomTextInput';
 
@@ -15,7 +14,7 @@ function Clientes() {
   const handlePost = async e => {
     e.preventDefault();
     setIsPosting(true);
-    
+
     const formData = new FormData(e.target);
 
     await api('/clientes', {
@@ -25,6 +24,9 @@ function Clientes() {
       .then(res => {
         if (res.data.errors) {
           setErrors(res.data.errors);
+        } else {
+          setIsModal(false);
+          fetchData();
         }
       })
       .catch(error => {
@@ -37,13 +39,15 @@ function Clientes() {
     setIsModal(willModal);
   };
 
-  useEffect(() => {
+  const fetchData = () => {
     api('/clientes')
       .then(res => setClientes(res.data))
       .catch(error => {
         console.log(error);
       });
-  }, []);
+  };
+
+  useEffect(() => fetchData(), []);
 
   return (
     <>
@@ -52,31 +56,38 @@ function Clientes() {
         className='px-3 py-1 rounded-full bg-green-500 hover:bg-green-600 text-white font-semibold'
         onClick={handleModal}
       >
-        Add new cliente
+        Añadir cliente
       </button>
       {isModal ? (
         <Modal handleModal={handleModal}>
           <form onSubmit={handlePost} className='space-y-3 px-3 py-4 mt-6'>
             <CustomTextInput name='dni' error={errors['dni']} />
-            <CustomTextInput name='nombre' error={errors['nombre']} />
-            <CustomTextInput name='apellidos' error={errors['apellidos']}/>
-            <CustomTextInput name='edad' type='number' error={errors['edad']}/>
-            <CustomTextInput name='direccion' error={errors['direccion']}/>
-            <CustomTextInput name='poblacion' error={errors['poblacion']}/>
-            <CustomTextInput name='telefono' error={errors['telefono']}/>
-            <CustomTextInput name='email' type='email' error={errors['email']}/>
+            <div className='flex gap-6'>
+              <CustomTextInput name='nombre' error={errors['nombre']} />
+              <CustomTextInput name='apellidos' error={errors['apellidos']} />
+            </div>
+            <CustomTextInput name='edad' type='number' error={errors['edad']} />
+            <div className='flex gap-6'>
+              <CustomTextInput name='direccion' error={errors['direccion']} />
+              <CustomTextInput name='poblacion' error={errors['poblacion']} />
+            </div>
+            <div className='flex gap-6'>
+              <CustomTextInput name='telefono' error={errors['telefono']} />
+              <CustomTextInput
+                name='email'
+                type='email'
+                error={errors['email']}
+              />
+            </div>
             <button
               type='submit'
               className='w-full py-3 mt-6 font-medium tracking-widest rounded-md text-white uppercase bg-black shadow-lg focus:outline-none hover:bg-gray-900 hover:shadow-none'
             >
-              {isPosting ? 'Posting...' : 'Nuevo cliente'}
+              {isPosting ? 'Posting...' : 'Nuevo libro'}
             </button>
           </form>
         </Modal>
-      ) : (
-        ''
-      )}
-      <Query />
+      ) : null}
       <Table rows={clientes} />
     </>
   );
