@@ -1,4 +1,4 @@
-function Form() {
+export default function Query() {
   return (
     <form method='POST' className='mt-8 flex justify-between space-x-16'>
       <div className='flex space-x-2 items-center'>
@@ -36,5 +36,3 @@ function Form() {
     </form>
   );
 }
-
-export default Form;

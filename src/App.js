@@ -12,7 +12,7 @@ function App() {
       <Header />
       <main className='flex-grow overflow-y-auto flex w-full'>
         <SideMenu />
-        <section className='overflow-y-auto overflow-x-auto w-full p-4'>
+        <section className='overflow-y-auto space-y-6 overflow-x-auto w-full p-4'>
           <Route path='/' exact component={Prestamos} />
           <Route path='/libros' exact component={Libros} />
           <Route path='/clientes' exact component={Clientes} />
