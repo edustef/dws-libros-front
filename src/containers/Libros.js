@@ -7,25 +7,10 @@ import Modal from '../components/Modal';
 
 function Libros() {
   const [libros, setLibros] = useState(null);
-  const [isModal, setIsModal] = useState(false);
+  const [isPostLibro, setIsPostLibro] = useState(false);
+  const [currentLibro, setCurrentLibro] = useState(null);
   const [isPosting, setIsPosting] = useState(false);
   const [errors, setErrors] = useState([]);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const handleModal = willModal => {
-    setIsModal(willModal);
-  };
-
-  const fetchData = () => {
-    api('/libros')
-      .then(res => setLibros(res.data))
-      .catch(error => {
-        console.log(error);
-      });
-  };
 
   const handlePost = async e => {
     e.preventDefault();
@@ -41,7 +26,7 @@ function Libros() {
         if (res.data.errors) {
           setErrors(res.data.errors);
         } else {
-          setIsModal(false);
+          setIsPostLibro(false);
           fetchData();
         }
       })
@@ -51,17 +36,73 @@ function Libros() {
     setIsPosting(false);
   };
 
+  const fetchData = () => {
+    api('/libros')
+      .then(res => {
+        setLibros(res.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
+  useEffect(() => fetchData(), []);
+
+  const handleEdit = async e => {
+    e.preventDefault();
+    setIsPosting(true);
+
+    const formData = new FormData(e.target);
+    formData.append('_method', 'PUT');
+    formData.append('dni', currentLibro.dni);
+
+    try {
+      let res = await api('/libros', {
+        method: 'POST',
+        data: formData,
+      });
+      if (res.data.errors) {
+        setErrors(res.data.errors);
+      } else {
+        setIsPostLibro(false);
+        setCurrentLibro(null);
+        fetchData();
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  const handleDelete = async isbn => {
+    const formData = new FormData();
+    formData.append('_method', 'DELETE');
+    formData.append('isbn', isbn);
+
+    try {
+      await api('/libros', {
+        method: 'POST',
+        data: formData,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      fetchData();
+    }
+  };
+
   return (
     <>
       <h1 className='text-5xl'>Libros</h1>
       <button
         className='px-3 py-1 rounded-full bg-green-500 hover:bg-green-600 text-white font-semibold'
-        onClick={handleModal}
+        onClick={() => setIsPostLibro(true)}
       >
         Añadir libro
       </button>
-      {isModal ? (
-        <Modal handleModal={handleModal}>
+      {isPostLibro ? (
+        <Modal handleModal={setIsPostLibro}>
           <form onSubmit={handlePost} className='space-y-3 px-3 py-4 mt-6'>
             <CustomTextInput name='isbn' error={errors['isbn']} />
             <CustomTextInput name='titulo' error={errors['titulo']} />
@@ -97,8 +138,85 @@ function Libros() {
           </form>
         </Modal>
       ) : null}
-      <div className="flex">
-      {libros ? libros.map(libro => <Book {...libro} />) : null}
+      {currentLibro ? (
+        <Modal handleModal={setCurrentLibro}>
+          <form onSubmit={handleEdit} className='space-y-3 px-3 py-4 mt-6'>
+            <CustomTextInput
+              defaultValue={currentLibro.isbn}
+              name='isbn'
+              error={errors['isbn']}
+            />
+            <CustomTextInput
+              defaultValue={currentLibro.titulo}
+              name='titulo'
+              error={errors['titulo']}
+            />
+            <CustomTextInput
+              defaultValue={currentLibro.subtitulo}
+              name='subtitulo'
+              error={errors['subtitulo']}
+            />
+            <CustomTextArea
+              defaultValue={currentLibro.descripcion}
+              name='descripcion'
+              error={errors['descripcion']}
+            />
+            <div className='flex gap-6'>
+              <CustomTextInput
+                defaultValue={currentLibro.autor}
+                name='autor'
+                error={errors['autor']}
+              />
+              <CustomTextInput
+                defaultValue={currentLibro.editorial}
+                name='editorial'
+                error={errors['editorial']}
+              />
+              <CustomTextInput
+                defaultValue={currentLibro.categoria}
+                name='categoria'
+                error={errors['categoria']}
+              />
+            </div>
+            <CustomTextInput
+              defaultValue={currentLibro.imagenPortada}
+              name='imagenPortada'
+              error={errors['imagenPortada']}
+            />
+            <div className='flex gap-6'>
+              <CustomTextInput
+                defaultValue={currentLibro.numEjemplaresTotales}
+                name='numEjemplaresTotales'
+                type='number'
+                error={errors['numEjemplaresTotales']}
+              />
+              <CustomTextInput
+                defaultValue={currentLibro.numEjemplaresDisponibles}
+                name='numEjemplaresDisponibles'
+                type='number'
+                error={errors['numEjemplaresDisponibles']}
+              />
+            </div>
+            <button
+              type='submit'
+              className='w-full py-3 mt-6 font-medium tracking-widest rounded-md text-white uppercase bg-black shadow-lg focus:outline-none hover:bg-gray-900 hover:shadow-none'
+            >
+              {isPosting ? 'Posting...' : 'Nuevo libro'}
+            </button>
+          </form>
+        </Modal>
+      ) : null}
+      <div className='flex'>
+        {libros
+          ? libros.map(libro => (
+              <Book
+                key={libro.isbn}
+                {...libro}
+                handleDelete={handleDelete}
+                setCurrentLibro={setCurrentLibro}
+              />
+            ))
+          : null}
       </div>
     </>
   );

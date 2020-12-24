@@ -2,11 +2,11 @@ import React from 'react';
 
 export default function Modal({ children, handleModal }) {
   return (
-    <div className='fixed z-10 inset-0 overflow-y-auto'>
+    <div className='fixed z-50 inset-0 overflow-y-auto'>
       <div className='flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block'>
         <div className='fixed inset-0 transition-opacity' aria-hidden='true'>
           <div
-            onClick={() => handleModal(false)}
+            onClick={() => handleModal(null)}
             className='absolute inset-0 bg-gray-500 opacity-75'
           ></div>
         </div>
@@ -17,7 +17,7 @@ export default function Modal({ children, handleModal }) {
           aria-labelledby='modal-headline'
         >
           <button
-            onClick={() => handleModal(false)}
+            onClick={() => handleModal(null)}
             className='absolute right-0 font-bold text-gray-400 p-1 m-3'
           >
             X
