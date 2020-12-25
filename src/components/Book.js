@@ -44,8 +44,9 @@ export default function Book({ setCurrentLibro, handleDelete, ...libro }) {
           <p className='sm:text-sm text-xs text-gray-700 mr-1 my-3'>
             {libro.subtitulo.substring(0, 50)}
           </p>
-          <div className='user flex items-center mt-8 mb-4'>
+          <div className='user flex justify-between items-center mt-8 mb-4'>
             <Tag name={libro.categoria} />
+            <div className='text-gray-400'>{libro.numEjemplaresDisponibles}/{libro.numEjemplaresTotales}</div>
           </div>
         </div>
       </div>

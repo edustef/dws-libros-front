@@ -16,6 +16,7 @@ function Prestamos() {
   const [errors, setErrors] = useState([]);
 
   const fetchData = () => {
+    setPrestamos(null);
     api('/prestamos')
       .then(res => {
         setPrestamos(res.data);
@@ -88,8 +89,7 @@ function Prestamos() {
 
     const formData = new FormData(e.target);
     formData.append('_method', 'PUT');
-    formData.append('isbn', currentPrestamo.isbn);
-    formData.append('dni', currentPrestamo.dni);
+    formData.append('isbn', currentPrestamo.id);
 
     try {
       let res = await api('/prestamos', {
@@ -110,11 +110,10 @@ function Prestamos() {
     }
   };
 
-  const handleDelete = async (isbn, dni) => {
+  const handleDelete = async () => {
     const formData = new FormData();
     formData.append('_method', 'DELETE');
-    formData.append('isbn', isbn);
-    formData.append('dni', dni);
+    formData.append('isbn', currentPrestamo.id);
 
     try {
       await api('/prestamos', {
@@ -170,7 +169,7 @@ function Prestamos() {
         <Modal handleModal={setCurrentPrestamo}>
           <form onSubmit={handleEdit} className='space-y-3 px-3 py-4 mt-6'>
             <h1 className='text-2xl font-semibold text-center'>
-              Edit {currentPrestamo.titulo}
+              Edit {currentPrestamo.titulo} - {currentPrestamo.nombre}
             </h1>
             <div className='flex w-full gap-6'>
               <CustomTextInput
@@ -235,7 +234,7 @@ function Prestamos() {
       <Table>
         <TableHead>
           {(function () {
-            if (prestamos) {
+            if (prestamos && prestamos.length > 0) {
               const { isbn, dni, ...headPrestamo } = prestamos[0];
               return Object.keys(headPrestamo).map(key => (
                 <TableHeadData key={key}>{key}</TableHeadData>
@@ -246,56 +245,57 @@ function Prestamos() {
           <TableHeadData></TableHeadData>
         </TableHead>
         <TableBody>
-          {prestamos
-            ? prestamos.map(prestamo => {
-                let { isbn, dni, ...tempPrestamo } = prestamo;
-                return (
-                  <tr key={isbn + dni} className='hover:bg-gray-50'>
-                    {Object.entries(tempPrestamo).map(([key, prestamoData]) => (
-                      <td
-                        key={key}
-                        className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm'
-                      >
-                        {key === 'estado'
-                          ? prestamosDetails[prestamo.estado]
-                          : prestamoData}
-                      </td>
-                    ))}
+          {prestamos ? (
+            prestamos.map(prestamo => {
+              let { isbn, dni, ...tempPrestamo } = prestamo;
+              return (
+                <tr key={isbn + dni} className='hover:bg-gray-50'>
+                  {Object.entries(tempPrestamo).map(([key, prestamoData]) => (
                     <td
-                      key='action'
+                      key={key}
                       className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm'
                     >
-                      {prestamo.estado === '1' ? (
-                        <Button
-                          handleAction={() => handleFinalizar(prestamo)}
-                          color='gray'
-                        >
-                          Finalizado
-                        </Button>
-                      ) : (
-                        <Button
-                          handleAction={() => handleFinalizar(prestamo)}
-                          color='green'
-                        >
-                          Finalizar
-                        </Button>
-                      )}
-                      <Button handleAction={() => setCurrentPrestamo(prestamo)}>
-                        Edit
-                      </Button>
-                      <Button
-                        handleAction={() =>
-                          handleDelete(prestamo.isbn, prestamo.dni)
-                        }
-                        color='red'
-                      >
-                        Delete
-                      </Button>
+                      {key === 'estado'
+                        ? prestamosDetails[prestamo.estado]
+                        : prestamoData}
                     </td>
-                  </tr>
-                );
-              })
-            : null}
+                  ))}
+                  <td
+                    key='action'
+                    className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm'
+                  >
+                    {prestamo.estado === '1' ? (
+                      <Button
+                        handleAction={() => handleFinalizar(prestamo)}
+                        color='gray'
+                      >
+                        Finalizado
+                      </Button>
+                    ) : (
+                      <Button
+                        handleAction={() => handleFinalizar(prestamo)}
+                        color='green'
+                      >
+                        Finalizar
+                      </Button>
+                    )}
+                    <Button handleAction={() => setCurrentPrestamo(prestamo)}>
+                      Edit
+                    </Button>
+                    <Button handleAction={handleDelete} color='red'>
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm animate-pulse'>
+                Loading...
+              </td>
+            </tr>
+          )}
         </TableBody>
       </Table>
     </>

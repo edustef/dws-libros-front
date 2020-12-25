@@ -37,6 +37,7 @@ function Libros() {
   };
 
   const fetchData = () => {
+    setLibros(null);
     api('/libros')
       .then(res => {
         setLibros(res.data);
@@ -54,7 +55,7 @@ function Libros() {
 
     const formData = new FormData(e.target);
     formData.append('_method', 'PUT');
-    formData.append('dni', currentLibro.dni);
+    formData.append('isbn', currentLibro.isbn);
 
     try {
       let res = await api('/libros', {
@@ -92,6 +93,21 @@ function Libros() {
     }
   };
 
+  const handleQuery = async e => {
+    setLibros(null);
+    e.preventDefault();
+    try {
+      let res = await api('/libros', {
+        params: {
+          query: e.target.value,
+        },
+      });
+      setLibros(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <h1 className='text-5xl'>Libros</h1>
@@ -101,6 +117,16 @@ function Libros() {
       >
         Añadir libro
       </button>
+      <div>
+        <input
+          id='query'
+          name='query'
+          className='ml-2 border px-3 py-1 shadow-md'
+          type='text'
+          placeholder='Buscar'
+          onChange={handleQuery}
+        />
+      </div>
       {isPostLibro ? (
         <Modal handleModal={setIsPostLibro}>
           <form onSubmit={handlePost} className='space-y-3 px-3 py-4 mt-6'>
@@ -141,11 +167,6 @@ function Libros() {
       {currentLibro ? (
         <Modal handleModal={setCurrentLibro}>
           <form onSubmit={handleEdit} className='space-y-3 px-3 py-4 mt-6'>
-            <CustomTextInput
-              defaultValue={currentLibro.isbn}
-              name='isbn'
-              error={errors['isbn']}
-            />
             <CustomTextInput
               defaultValue={currentLibro.titulo}
               name='titulo'
@@ -201,22 +222,26 @@ function Libros() {
               type='submit'
               className='w-full py-3 mt-6 font-medium tracking-widest rounded-md text-white uppercase bg-black shadow-lg focus:outline-none hover:bg-gray-900 hover:shadow-none'
             >
-              {isPosting ? 'Posting...' : 'Nuevo libro'}
+              {isPosting ? 'Updating...' : 'Update libro'}
             </button>
           </form>
         </Modal>
       ) : null}
       <div className='flex'>
-        {libros
-          ? libros.map(libro => (
-              <Book
-                key={libro.isbn}
-                {...libro}
-                handleDelete={handleDelete}
-                setCurrentLibro={setCurrentLibro}
-              />
-            ))
-          : null}
+        {libros ? (
+          libros.map(libro => (
+            <Book
+              key={libro.isbn}
+              {...libro}
+              handleDelete={handleDelete}
+              setCurrentLibro={setCurrentLibro}
+            />
+          ))
+        ) : (
+          <p className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm animate-pulse'>
+            Loading...
+          </p>
+        )}
       </div>
     </>
   );

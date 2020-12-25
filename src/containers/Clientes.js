@@ -40,6 +40,7 @@ function Clientes() {
   };
 
   const fetchData = () => {
+    setClientes(null);
     api('/clientes')
       .then(res => {
         setClientes(res.data);
@@ -143,11 +144,6 @@ function Clientes() {
             <h1 className='text-2xl font-semibold text-center'>
               Editar {`${currentCliente.nombre} ${currentCliente.apellidos}`}
             </h1>
-            <CustomTextInput
-              defaultValue={currentCliente.dni}
-              name='dni'
-              error={errors['dni']}
-            />
             <div className='flex gap-6'>
               <CustomTextInput
                 defaultValue={currentCliente.nombre}
@@ -203,7 +199,7 @@ function Clientes() {
       <Table>
         <TableHead>
           {(function () {
-            if (clientes) {
+            if (clientes && clientes.length > 0) {
               const { dni, ...headCliente } = clientes[0];
               return Object.keys(headCliente).map(key => (
                 <TableHeadData key={key}>{key}</TableHeadData>
@@ -214,37 +210,43 @@ function Clientes() {
           <TableHeadData></TableHeadData>
         </TableHead>
         <TableBody>
-          {clientes
-            ? clientes.map((cliente, key) => {
-                const { dni, ...tempCliente } = clientes[0];
-                return (
-                  <tr key={key} className='hover:bg-gray-50'>
-                    {Object.entries(tempCliente).map(([key, clienteData]) => (
-                      <td
-                        key={key}
-                        className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm'
-                      >
-                        {clienteData}
-                      </td>
-                    ))}
+          {clientes ? (
+            clientes.map((cliente, key) => {
+              const { dni, ...tempCliente } = clientes[0];
+              return (
+                <tr key={key} className='hover:bg-gray-50'>
+                  {Object.entries(tempCliente).map(([key, clienteData]) => (
                     <td
-                      key='action'
+                      key={key}
                       className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm'
                     >
-                      <Button handleAction={() => setCurrentCliente(cliente)}>
-                        Edit
-                      </Button>
-                      <Button
-                        handleAction={() => handleDelete(cliente.dni)}
-                        color='red'
-                      >
-                        Delete
-                      </Button>
+                      {clienteData}
                     </td>
-                  </tr>
-                );
-              })
-            : null}
+                  ))}
+                  <td
+                    key='action'
+                    className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm'
+                  >
+                    <Button handleAction={() => setCurrentCliente(cliente)}>
+                      Edit
+                    </Button>
+                    <Button
+                      handleAction={() => handleDelete(cliente.dni)}
+                      color='red'
+                    >
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td className='px-6 py-4 truncate text-sm text-gray-500 max-w-sm animate-pulse'>
+                Loading...
+              </td>
+            </tr>
+          )}
         </TableBody>
       </Table>
     </>
