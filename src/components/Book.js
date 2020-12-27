@@ -20,7 +20,7 @@ export default function Book({ setCurrentLibro, handleDelete, ...libro }) {
                   <Button handleAction={() => setCurrentLibro(libro)}>Edit</Button>
                   <Button
                     handleAction={() => handleDelete(libro.isbn)}
-                    color='red'
+                    type='danger'
                   >
                     Delete
                   </Button>

@@ -255,14 +255,14 @@ function Prestamos() {
                     {prestamo.estado === '1' ? (
                       <Button
                         handleAction={() => handleFinalizar(prestamo)}
-                        color='gray'
+                        type='neutral'
                       >
                         Finalizado
                       </Button>
                     ) : (
                       <Button
                         handleAction={() => handleFinalizar(prestamo)}
-                        color='green'
+                        type='success'
                       >
                         Finalizar
                       </Button>
@@ -272,7 +272,7 @@ function Prestamos() {
                     </Button>
                     <Button
                       handleAction={() => handleDelete(prestamo)}
-                      color='red'
+                      type='danger'
                     >
                       Delete
                     </Button>
