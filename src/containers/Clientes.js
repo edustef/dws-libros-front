@@ -96,6 +96,21 @@ function Clientes() {
     }
   };
 
+  const handleQuery = async e => {
+    setClientes(null);
+    e.preventDefault();
+    try {
+      let res = await api('/clientes', {
+        params: {
+          query: e.target.value,
+        },
+      });
+      setClientes(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <h1 className='text-5xl'>Clientes</h1>
@@ -105,6 +120,16 @@ function Clientes() {
       >
         Añadir cliente
       </button>
+      <div>
+        <input
+          id='query'
+          name='query'
+          className='ml-2 border px-3 py-1 shadow-md'
+          type='text'
+          placeholder='Buscar'
+          onChange={handleQuery}
+        />
+      </div>
       {isPostCliente ? (
         <Modal handleModal={setIsPostCliente}>
           <form onSubmit={handlePost} className='space-y-3 px-3 py-4 mt-6'>
@@ -212,7 +237,7 @@ function Clientes() {
         <TableBody>
           {clientes ? (
             clientes.map((cliente, key) => {
-              const { dni, ...tempCliente } = clientes[0];
+              const { dni, ...tempCliente } = cliente;
               return (
                 <tr key={key} className='hover:bg-gray-50'>
                   {Object.entries(tempCliente).map(([key, clienteData]) => (

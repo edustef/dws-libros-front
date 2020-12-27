@@ -38,14 +38,14 @@ function Prestamos() {
   ];
 
   const handleFinalizar = async prestamo => {
+    setPrestamos(null);
     const formData = new FormData();
     formData.append('_method', 'PUT');
-    formData.append('isbn', prestamo.isbn);
-    formData.append('dni', prestamo.dni);
+    formData.append('id', prestamo.id);
     if (prestamo.estado !== '1') {
       formData.append('estado', '1');
     } else {
-      formData.append('fechaFin', prestamo.fechaFin);
+      formData.append('estado', '0');
     }
 
     try {
@@ -89,7 +89,7 @@ function Prestamos() {
 
     const formData = new FormData(e.target);
     formData.append('_method', 'PUT');
-    formData.append('isbn', currentPrestamo.id);
+    formData.append('id', currentPrestamo.id);
 
     try {
       let res = await api('/prestamos', {
@@ -127,6 +127,21 @@ function Prestamos() {
     }
   };
 
+  const handleQuery = async e => {
+    setPrestamos(null);
+    e.preventDefault();
+    try {
+      let res = await api('/prestamos', {
+        params: {
+          query: e.target.value,
+        },
+      });
+      setPrestamos(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <h1 className='text-5xl'>Prestamos</h1>
@@ -136,6 +151,16 @@ function Prestamos() {
       >
         Añadir prestamo
       </button>
+      <div>
+        <input
+          id='query'
+          name='query'
+          className='ml-2 border px-3 py-1 shadow-md'
+          type='text'
+          placeholder='Buscar'
+          onChange={handleQuery}
+        />
+      </div>
       {isPostPrestamo ? (
         <Modal handleModal={setIsPostPrestamo}>
           <form onSubmit={handlePost} className='space-y-3 px-3 py-4 mt-6'>
@@ -194,43 +219,6 @@ function Prestamos() {
           </form>
         </Modal>
       ) : null}
-      <form method='POST' className='mt-8 flex justify-between space-x-16'>
-        <div className='flex space-x-2 items-center'>
-          <label
-            htmlFor='date-start'
-            className='text-sm font-medium text-gray-700'
-          >
-            INICIO
-          </label>
-          <input
-            type='date'
-            name='date-start'
-            id='date-start'
-            className='border border-gray-300 px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500  rounded-md'
-            placeholder='0.00'
-          />
-        </div>
-
-        <div className='flex space-x-2 items-center'>
-          <label
-            htmlFor='date-end'
-            className='text-sm font-medium text-gray-700'
-          >
-            FIN
-          </label>
-          <input
-            type='date'
-            name='date-end'
-            id='date-end'
-            className='border border-gray-300 px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500  rounded-md'
-            placeholder='0.00'
-          />
-        </div>
-
-        <button className='flex-grow text-white font-semibold px-2 py-1 rounded-md bg-blue-500 hover:bg-blue-600'>
-          Procesar
-        </button>
-      </form>
       <Table>
         <TableHead>
           {(function () {
