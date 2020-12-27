@@ -110,10 +110,10 @@ function Prestamos() {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async prestamo => {
     const formData = new FormData();
     formData.append('_method', 'DELETE');
-    formData.append('isbn', currentPrestamo.id);
+    formData.append('id', prestamo.id);
 
     try {
       await api('/prestamos', {
@@ -223,7 +223,7 @@ function Prestamos() {
         <TableHead>
           {(function () {
             if (prestamos && prestamos.length > 0) {
-              const { isbn, dni, ...headPrestamo } = prestamos[0];
+              const { id, isbn, dni, ...headPrestamo } = prestamos[0];
               return Object.keys(headPrestamo).map(key => (
                 <TableHeadData key={key}>{key}</TableHeadData>
               ));
@@ -235,7 +235,7 @@ function Prestamos() {
         <TableBody>
           {prestamos ? (
             prestamos.map(prestamo => {
-              let { isbn, dni, ...tempPrestamo } = prestamo;
+              let { id, isbn, dni, ...tempPrestamo } = prestamo;
               return (
                 <tr key={isbn + dni} className='hover:bg-gray-50'>
                   {Object.entries(tempPrestamo).map(([key, prestamoData]) => (
@@ -270,7 +270,10 @@ function Prestamos() {
                     <Button handleAction={() => setCurrentPrestamo(prestamo)}>
                       Edit
                     </Button>
-                    <Button handleAction={handleDelete} color='red'>
+                    <Button
+                      handleAction={() => handleDelete(prestamo)}
+                      color='red'
+                    >
                       Delete
                     </Button>
                   </td>
